@@ -15,6 +15,6 @@ spec:
     spec: 
       containers: 
       - name: eks-web
-        image: devopsdecode/may-2026:v1
+        image: nginx
         ports: 
         - containerPort: 80
