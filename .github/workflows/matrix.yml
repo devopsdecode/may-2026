@@ -1,4 +1,3 @@
-#nojs
 name: This pipeline will deploy to multiple env
 
 on:
@@ -8,18 +7,16 @@ on:
 
 jobs:
   deploy:
-    name: Deploying multiple env:
+    name: Deploy to multiple environments
     runs-on: ubuntu-latest
-      
-  strategy:
+
+    strategy:
       matrix:
-        envrionment:
+        environment:
           - dev
           - qa
           - prod
-   
-  steps:
-    - name: Deploy to each env in single job
-      run: echo "Running on env ${{ matrix.envrionment }}"
-      
-  
+
+    steps:
+      - name: Deploy to each environment
+        run: echo "Running deployment on ${{ matrix.environment }}"
