@@ -1,3 +1,4 @@
+```yaml
 name: CI and CD application for building and deploying app
 
 on:
@@ -40,15 +41,18 @@ jobs:
       - name: Deploy application
         run: echo "Deploying application..."
 
-  notify:
-      runs-on: ubuntu-latest
 
-      steps:
-       - name: Sending notification to slack about build status
-         run: |
-            curl -X POST \
-              -H "Content-Type: application/json" \
-              -d '{"text":"Hello from GitHub Actions! From Raj 🚀"}' \
-              "${{ secrets.WEBHOOK }}"
-  
-        
+  # Notification Job
+  notify:
+    runs-on: ubuntu-latest
+    needs: [ci, cd]
+    if: always()
+
+    steps:
+      - name: Sending notification to Slack about build status
+        run: |
+          curl -X POST \
+            -H "Content-Type: application/json" \
+            -d '{"text":"CI/CD pipeline completed. From Raj 🚀"}' \
+            "${{ secrets.WEBHOOK }}"
+```
