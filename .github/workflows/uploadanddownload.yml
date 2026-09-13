@@ -48,9 +48,16 @@ jobs:
     if: always()
 
     steps:
-      - name: Sending notification to Slack about build status
+      - name: Sending notification to Slack
         run: |
+          if [ "${{ needs.ci.result }}" = "success" ] && \
+             [ "${{ needs.cd.result }}" = "success" ]; then
+            STATUS="SUCCESS"
+          else
+            STATUS="FAILED"
+          fi
+
           curl -X POST \
             -H "Content-Type: application/json" \
-            -d '{"text":"CI/CD pipeline completed. From Raj 🚀"}' \
+            -d "{\"text\":\"CI/CD Pipeline: ${STATUS} 🚀\"}" \
             "${{ secrets.WEBHOOK }}"
