@@ -1,0 +1,20 @@
+name: CI and CD application for building and deploying app
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Create the Node.js application
+        run: echo "This is the testing code" >> app.js
+
+      - name: Upload application artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app
+          path: app.js
