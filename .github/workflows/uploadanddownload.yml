@@ -1,4 +1,3 @@
-```yaml
 name: CI and CD application for building and deploying app
 
 on:
@@ -55,4 +54,3 @@ jobs:
             -H "Content-Type: application/json" \
             -d '{"text":"CI/CD pipeline completed. From Raj 🚀"}' \
             "${{ secrets.WEBHOOK }}"
-```
