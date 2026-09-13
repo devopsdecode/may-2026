@@ -8,8 +8,8 @@ on:
 
 jobs:
   deploy:
-    - name: Deploying multiple env:
-      runs-on: ubuntu-latest
+    name: Deploying multiple env:
+    runs-on: ubuntu-latest
       
   strategy:
       matrix:
