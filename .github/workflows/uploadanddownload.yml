@@ -6,6 +6,8 @@ on:
       - main
 
 jobs:
+
+  # CI Job
   ci:
     runs-on: ubuntu-latest
 
@@ -19,11 +21,34 @@ jobs:
           name: app
           path: app.js
 
-      - name: Download the artifact
+
+  # CD Job
+  cd:
+    runs-on: ubuntu-latest
+    needs: ci
+
+    steps:
+      - name: Download application artifact
         uses: actions/download-artifact@v4
         with:
           name: app
-          path: downloaded-app
+          path: application
 
-      - name: Testing the application code
-        run: cat downloaded-app/app.js
+      - name: Check downloaded application
+        run: cat application/app.js
+
+      - name: Deploy application
+        run: echo "Deploying application..."
+
+  notify:
+      runs-on: ubuntu-latest
+
+      steps:
+       - name: Sending notification to slack about build status
+         run: |
+            curl -X POST \
+              -H "Content-Type: application/json" \
+              -d '{"text":"Hello from GitHub Actions! From Raj 🚀"}' \
+              "${{ secrets.WEBHOOK }}"
+  
+        
