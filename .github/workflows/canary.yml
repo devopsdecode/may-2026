@@ -1,0 +1,46 @@
+#nojs
+name: Deploying application to via canary with example for run in setps with echo statement
+
+on:
+  push:
+    branches:
+      - main:
+
+jobs:
+  canary:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy on canary 1
+        run: echo "Deploying on canary server1 "
+      
+      - name: Deploy on canary 2
+        run: echo "Deploying on canary server2 "
+      
+      - name: Health Check
+        run: echo "Health Check server1"
+      
+      - name: Deploy on canary 3
+        run: echo "Deploying on canary server3"
+      
+      - name: Health Check
+        run: echo "Health Check server2"
+      
+      - name: Deploy on canary 4
+        run: echo "Deploying on canary server4"
+      
+      - name: Health Check
+        run: echo "Health Check server4"
+      
+      - name: Deploy on canary 5
+        run: echo "Deploying on canary server5"
+      
+      - name: Health Check
+        run: echo "Health Check server5"
+      
+      - name: Deploy on canary 6
+        run: echo "Deploying on canary server6"
+      
+      - name: Health Check
+        run: echo "Health Check server6"
+
