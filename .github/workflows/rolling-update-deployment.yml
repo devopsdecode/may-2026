@@ -1,0 +1,27 @@
+#nojs
+name: Deploying the application using echo statement for understanding the rolling update
+
+on: 
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy_1:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        rolling:
+          - deploy1
+          - deploy2
+          - deploy3
+          - deploy4
+          - deploy5
+          - deploy6
+
+    steps:
+      - name: Deploying the application
+        run: echo "Deploying the application on ${{ matrix.rolling }}"
+        
+    
