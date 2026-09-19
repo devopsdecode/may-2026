@@ -2,10 +2,7 @@
 name: Deploying the application using echo statement for understanding the rolling update
 
 on: 
-  push:
-    branches:
-      - main
-
+  workflow_dispatch
 jobs:
   deploy_1:
     runs-on: ubuntu-latest

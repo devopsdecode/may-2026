@@ -8,7 +8,7 @@ on:
 
 jobs:
   blue:
-    runs_on: ubuntu-latest
+    runs-on: ubuntu-latest
 
     steps:
       - name: Deploy on blue 1
