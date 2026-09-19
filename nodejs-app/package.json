@@ -1,0 +1,27 @@
+{
+  "name": "nodejs-sec-app",
+  "version": "1.0.0",
+  "description": "Node.js demo application with security testing using Trivy",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "test": "node --test test/app.test.js",
+    "build": "echo 'Building Node.js application...' && node -e 'console.log(\"Build successful\")'"
+  },
+  "keywords": [
+    "nodejs",
+    "express",
+    "security",
+    "trivy",
+    "cicd"
+  ],
+  "author": "DevOps Team",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.19.2",
+    "lodash": "4.17.20",
+    "jsonwebtoken": "8.5.1",
+    "axios": "0.21.1",
+    "minimist": "1.2.0"
+  }
+}

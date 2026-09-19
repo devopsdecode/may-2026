@@ -3,6 +3,7 @@ name: Deploying the application using echo statement for understanding the rolli
 
 on: 
   workflow_dispatch
+  
 jobs:
   deploy_1:
     runs-on: ubuntu-latest

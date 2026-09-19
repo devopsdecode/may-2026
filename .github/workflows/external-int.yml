@@ -1,0 +1,20 @@
+#nojs
+name: Pipeline failed and trigger the nofication to channel if the jobs steps failed
+
+on:
+  workflow_dispatch
+
+jobs:
+  notify:
+  runs-on: ubuntu-latest
+    if: failure() 
+  steps:  
+    - uses: actions/checkout@v4
+    - name: Notify failure to Slack
+      if: failure()
+      run: |
+        curl -X POST -H "Content-Type: application/json" \
+        -d "{\"text\":\"🚀 Pipeline failed: ${{ github.repository }} on branch ${{ github.ref }}\"}" \
+        "${{ secrets.SLACK_WEBHOOK_URL }}"
+    
+    

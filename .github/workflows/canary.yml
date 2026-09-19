@@ -2,10 +2,8 @@
 name: Deploying application to via canary with example for run in setps with echo statement
 
 on:
-  push:
-    branches:
-      - main
-
+  workflow_dispatch
+  
 jobs:
   canary:
     runs-on: ubuntu-latest

@@ -1,0 +1,163 @@
+name: Node.js CI/CD Pipeline with Trivy Security Scan
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  # -------------------------------------------------------------
+  # 1. BUILD STEP / JOB
+  # -------------------------------------------------------------
+  build:
+    name: Build & Test Application
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js Runtime
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'nodejs-app/package.json'
+
+      - name: Install Application Dependencies
+        run: |
+          cd nodejs-app
+          npm install
+
+      - name: Run Automated Unit Tests
+        run: |
+          cd nodejs-app
+          npm test
+
+      - name: Run Application Build
+        run: |
+          cd nodejs-app
+          npm run build
+
+      - name: Build Docker Container Image
+        run: |
+          docker build -t nodejs-app:${{ github.sha }} ./nodejs-app
+          docker tag nodejs-app:${{ github.sha }} nodejs-app:latest
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nodejs-app-build
+          path: |
+            nodejs-app/package.json
+            nodejs-app/app.js
+            nodejs-app/auth.js
+            nodejs-app/Dockerfile
+
+  # -------------------------------------------------------------
+  # 2. SECURITY TESTING STEP / JOB (TRIVY SCAN)
+  # -------------------------------------------------------------
+  security-scan:
+    name: Trivy Security & Vulnerability Scan
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Run Trivy FS Vulnerability & Secret Scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: 'nodejs-app'
+          format: 'table'
+          scanners: 'vuln,secret,misconfig'
+          severity: 'CRITICAL,HIGH,MEDIUM'
+          exit-code: '0' # Non-zero fails pipeline if desired; 0 reports all findings cleanly
+
+      - name: Generate Trivy Security JSON Report
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: 'nodejs-app'
+          format: 'json'
+          output: 'trivy-security-report.json'
+          scanners: 'vuln,secret,misconfig'
+          severity: 'CRITICAL,HIGH,MEDIUM'
+          exit-code: '0'
+
+      - name: Upload Trivy Security Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-security-report
+          path: trivy-security-report.json
+
+  # -------------------------------------------------------------
+  # 3. DEPLOY STEP / JOB
+  # -------------------------------------------------------------
+  deploy:
+    name: Deploy Application
+    runs-on: ubuntu-latest
+    needs: security-scan
+
+    steps:
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: nodejs-app-build
+          path: deployment-package
+
+      - name: Verify Package Contents
+        run: |
+          echo "Verifying application package before deployment:"
+          ls -la deployment-package
+
+      - name: Execute Deployment
+        run: |
+          echo "=========================================="
+          echo "Deploying Node.js application to Target..."
+          echo "Environment: Production / Staging"
+          echo "Commit SHA: ${{ github.sha }}"
+          echo "Branch: ${{ github.ref }}"
+          echo "Deployment completed successfully! 🚀"
+          echo "=========================================="
+
+  # -------------------------------------------------------------
+  # 4. NOTIFICATION STEP / JOB
+  # -------------------------------------------------------------
+  notify:
+    name: Pipeline Notification
+    runs-on: ubuntu-latest
+    needs: [build, security-scan, deploy]
+    if: always()
+
+    steps:
+      - name: Determine Pipeline Status & Send Notification
+        run: |
+          BUILD_STATUS="${{ needs.build.result }}"
+          SECURITY_STATUS="${{ needs['security-scan'].result }}"
+          DEPLOY_STATUS="${{ needs.deploy.result }}"
+
+          if [ "$BUILD_STATUS" = "success" ] && [ "$SECURITY_STATUS" = "success" ] && [ "$DEPLOY_STATUS" = "success" ]; then
+            OVERALL_STATUS="SUCCESS"
+            EMOJI="✅"
+          else
+            OVERALL_STATUS="FAILED"
+            EMOJI="❌"
+          fi
+
+          MESSAGE="{\"text\":\"${EMOJI} *CI/CD Pipeline ${OVERALL_STATUS}*\n*Repository:* ${{ github.repository }}\n*Branch:* ${{ github.ref }}\n*Build:* ${BUILD_STATUS}\n*Security Scan:* ${SECURITY_STATUS}\n*Deploy:* ${DEPLOY_STATUS}\n*Commit:* ${{ github.sha }}\"}"
+          
+          echo "Notification Payload:"
+          echo "$MESSAGE"
+
+          WEBHOOK_URL="${{ secrets.SLACK_WEBHOOK_URL || secrets.WEBHOOK }}"
+
+          if [ -n "$WEBHOOK_URL" ]; then
+            echo "Sending webhook notification..."
+            curl -X POST -H "Content-Type: application/json" -d "$MESSAGE" "$WEBHOOK_URL" || echo "Webhook trigger completed with warning"
+          else
+            echo "No webhook secret configured (SLACK_WEBHOOK_URL / WEBHOOK). Notification payload printed to logs."
+          fi
