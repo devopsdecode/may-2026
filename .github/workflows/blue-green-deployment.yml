@@ -2,10 +2,8 @@
 name: Deploying the appliction for blue green deployment with echo testing example 
 
 on:
-  push:
-    branches:
-      - main
-
+  workflow_dispatch
+  
 jobs:
   blue:
     runs-on: ubuntu-latest

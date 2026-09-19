@@ -4,7 +4,7 @@ name: Deploying application to via canary with example for run in setps with ech
 on:
   push:
     branches:
-      - main:
+      - main
 
 jobs:
   canary:
