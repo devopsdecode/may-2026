@@ -25,5 +25,11 @@ jobs:
       - name: Deploy on green 1
         run: echo "Deploying on green server1 "
       
+      - name: Health Check
+        run: echo "Health Check server1"
+      
       - name: Deploy on green 2
         run: echo "Deploying on green server2"
+
+      - name: Health Check
+        run: echo "Health Check server2"
